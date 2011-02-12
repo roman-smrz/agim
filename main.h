@@ -5,21 +5,9 @@
 #include <stdbool.h>
 
 
-struct command;
-struct program;
-
-
 struct command {
 	char *name;
-	bool (*compile) (int, const char **, struct program *);
-};
-
-
-struct program {
-	bool (*func) (void*);
-	void *param;
-	struct program *sub;
-	struct program *next;
+	bool (*run) (int, const char **);
 };
 
 

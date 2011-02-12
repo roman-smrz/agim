@@ -20,7 +20,7 @@ struct command commands[] = {
 
 
 
-const char **parse_params(const char *data, int *pos, int length) {
+static const char **parse_params(const char *data, int *pos, int length) {
 	static const char **list = NULL;
 	static int list_len = 0, list_i = 0;
 
@@ -75,10 +75,7 @@ const char **parse_params(const char *data, int *pos, int length) {
 }
 
 
-struct program *compile_cmd(const char **params) {
-	static struct program *buf = NULL;
-	static int buf_len = 0, buf_i = 0;
-
+static bool run_cmd(const char **params) {
 	int count = 0;
 	while (params[count]) count++;
 
@@ -87,47 +84,27 @@ struct program *compile_cmd(const char **params) {
 		if (strcmp(params[0], cmd->name) != 0)
 			continue;
 
-		if (buf_i >= buf_len) {
-			// Command nodes are preserved for the whole time this
-			// program is running, so we do not need to keep
-			// references to the used ones.
-
-			buf_i = 0;
-			buf_len = buf_len * 2 + 1;
-			buf = malloc(sizeof(*buf)*buf_len);
-		}
-
-		buf[buf_i].func = 0;
-		buf[buf_i].param = 0;
-		buf[buf_i].sub = 0;
-		buf[buf_i].next = 0;
-
-		//fprintf(stderr, "Compiling command: %s\n", params[0]);
-		if (!cmd->compile(count, params, buf+buf_i)) {
-			fprintf(stderr, "Compiling failed: %s\n", params[0]);
-			return NULL;
-		}
-		//fprintf(stderr, "OK\n");
-		return buf+(buf_i++);
+		return cmd->run(count, params);
 	}
+
 	fprintf(stderr, "Unknown command: %s\n", params[0]);
-	return NULL;
+	exit(EXIT_FAILURE);
 }
 
 
 
-struct program *parse_config(const char *data, int length) {
+static void run_script(const char *data, int length) {
 	int pos = 0;
 
-	struct program *parse_config_(const char *data, int length, int *pos) {
-		struct program *result = NULL, *current = NULL;
+	void run_script_(const char *data, int length, int *pos, bool run) {
+		bool run_subcmds = run;
 		while (1) {
 			while (*pos < length && isspace(data[*pos])) (*pos)++;
 			if (*pos >= length) break;
 
 			if (data[*pos] == '{') {
 				(*pos)++;
-				current->sub = parse_config_(data, length, pos);
+				run_script_(data, length, pos, run_subcmds);
 				continue;
 			}
 
@@ -137,30 +114,14 @@ struct program *parse_config(const char *data, int length) {
 			}
 
 			const char **params = parse_params(data, pos, length);
-			if (!params) return NULL;
+			if (!params) return;
 
-			struct program *new = compile_cmd(params);
-			if (!new) {
-				fprintf(stderr, "Compilation failed.\n");
-				return NULL;
-			}
-
-			if (current) current->next = new;
-			current = new;
-			if (!result) result = new;
+			if (run) run_subcmds = run_cmd(params);
 		}
-		return result;
 	}
-	return parse_config_(data, length, &pos);
+	run_script_(data, length, &pos, true);
 }
 
-
-void run(struct program *program) {
-	if (program->func(program->param) && program->sub)
-		run(program->sub);
-	if (program->next)
-		run(program->next);
-}
 
 
 int main_argc;
@@ -192,9 +153,6 @@ int main(int argc, char const* argv[])
 	main_argc = argc;
 	main_argv = argv;
 
-	struct program *program = parse_config(conf_data, st.st_size);
-	if (program) run(program);
-
-
+	run_script(conf_data, st.st_size);
 	return 0;
 }

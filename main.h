@@ -12,7 +12,7 @@ struct command {
 
 
 extern int main_argc;
-extern const char **main_argv;
+extern char **main_argv;
 
 
 #endif

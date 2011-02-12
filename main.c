@@ -14,7 +14,10 @@
 #include "main.h"
 
 
+bool send (int, const char **);
+
 struct command commands[] = {
+	{ "send", send },
 	{ NULL, NULL }
 };
 
@@ -125,9 +128,9 @@ static void run_script(const char *data, int length) {
 
 
 int main_argc;
-const char **main_argv;
+char **main_argv;
 
-int main(int argc, char const* argv[])
+int main(int argc, char **argv)
 {
 	int fd;
 	struct stat st;

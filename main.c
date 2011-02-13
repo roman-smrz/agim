@@ -103,30 +103,30 @@ static bool run_cmd(const char **params) {
 static void run_script(const char *data, int length) {
 	int pos = 0;
 
-	void run_script_(const char *data, int length, int *pos, bool run) {
+	void run_script_(bool run) {
 		bool run_subcmds = run;
 		while (1) {
-			while (*pos < length && isspace(data[*pos])) (*pos)++;
-			if (*pos >= length) break;
+			while (pos < length && isspace(data[pos])) pos++;
+			if (pos >= length) break;
 
-			if (data[*pos] == '{') {
-				(*pos)++;
-				run_script_(data, length, pos, run_subcmds);
+			if (data[pos] == '{') {
+				pos++;
+				run_script_(run_subcmds);
 				continue;
 			}
 
-			if (data[*pos] == '}') {
-				(*pos)++;
+			if (data[pos] == '}') {
+				pos++;
 				break;
 			}
 
-			const char **params = parse_params(data, pos, length);
+			const char **params = parse_params(data, &pos, length);
 			if (!params) return;
 
 			if (run) run_subcmds = run_cmd(params);
 		}
 	}
-	run_script_(data, length, &pos, true);
+	run_script_(true);
 }
 
 

@@ -1,7 +1,7 @@
 CFLAGS+=-std=gnu99 -W -Wall -g
 
 
-sources=main send
+sources=main send net
 
 agim: $(addsuffix .o,$(sources))
 	@echo LD $@

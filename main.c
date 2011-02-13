@@ -15,9 +15,11 @@
 
 
 bool send (int, const char **);
+bool net (int, const char **);
 
 struct command commands[] = {
 	{ "send", send },
+	{ "net", net },
 	{ NULL, NULL }
 };
 

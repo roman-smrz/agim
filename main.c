@@ -60,6 +60,40 @@ static const char **parse_params(const char *data, int *pos, int length) {
 	bool last_space = false;
 	(*pos)--;
 
+	const char *var_value = "";
+
+	void read_var() {
+		char name[256];
+		char type = 0;
+		int i = 0;
+		for ((*pos)++; i < 255 && *pos < length; (*pos)++) {
+			char c = data[*pos];
+			if (!type) {
+				if (c == '{') {
+					type = '{';
+					continue;
+				}
+				if (isalnum(c) || c == '_')
+					type = ' ';
+			}
+			if (!type) {
+				var_value = "$";
+				return;
+			}
+
+			if (isalnum(c) || c == '_')
+				name[i++] = c;
+			else {
+				if (!(type == '{' && c == '}'))
+					(*pos)--;
+				break;
+			}
+		}
+
+		var_value = getenv(name);
+		if (!var_value) var_value = "";
+	}
+
 	/*
 	 * This function returns the next character to be included in
 	 * parameters, it interprets special characters, for each sequence of
@@ -67,25 +101,36 @@ static const char **parse_params(const char *data, int *pos, int length) {
 	 * processing of parameters for current command should stop.
 	 */
 	char next_char() {
-		if (++(*pos) >= length) return 0;
+		char c;
+		if (*var_value) {
+			c = *(var_value++);
+		} else {
+			if (++(*pos) >= length) return 0;
 
-		char c = data[*pos];
-		last_space = last_space && isspace(c);
+			c = data[*pos];
+			last_space = last_space && isspace(c);
 
-		if (c == '\'' || c == '"') {
-			if (quot == 0) quot = c;
-			else if (quot == c) quot = 0;
-			else return c;
-			return next_char();
+			if (c == '\'' || c == '"') {
+				if (quot == 0) quot = c;
+				else if (quot == c) quot = 0;
+				else return c;
+				return next_char();
+			}
+
+			if (!quot || quot == '"') {
+				if (c == '\\' && (*pos) < length-1)
+					return data[++(*pos)];
+				if (c == '$') {
+					read_var();
+					return next_char();
+				}
+			}
+
+			if (quot) return c;
+
+			if (c == '\n' || c == '{' || c == '#')
+				return 0;
 		}
-
-		if (c == '\\' && (!quot || quot == '"') && (*pos) < length-1)
-			return data[++(*pos)];
-
-		if (quot) return c;
-
-		if (c == '\n' || c == '{' || c == '#')
-			return 0;
 
 		if (isspace(c)) {
 			if (last_space) return next_char();

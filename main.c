@@ -16,10 +16,12 @@
 
 bool send (int, const char **);
 bool net (int, const char **);
+bool essid (int, const char **);
 
 struct command commands[] = {
 	{ "send", send },
 	{ "net", net },
+	{ "essid", essid },
 	{ NULL, NULL }
 };
 

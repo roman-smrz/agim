@@ -9,7 +9,7 @@ bool essid(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	bool result;
+	bool result = 0;
 	char *args[2] = { argv[1], (char*) &result };
 	int skfd = iw_sockets_open();
 

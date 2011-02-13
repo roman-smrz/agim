@@ -58,7 +58,7 @@ static const char **parse_params(const char *data, int *pos, int length) {
 
 	while (isspace(data[*pos])) (*pos)++;
 	while (1) {
-		if (data[*pos] == '\n' || data[*pos] == '{')
+		if (data[*pos] == '\n' || data[*pos] == '{' || data[*pos] == '#')
 			break;
 
 		add_param(buf+buf_i);
@@ -70,7 +70,7 @@ static const char **parse_params(const char *data, int *pos, int length) {
 				quot = -1;
 			else if (c == '\'' || c == '"')
 				quot = c;
-			else if (quot == -1 && (isspace(c) || c == '{'))
+			else if (quot == -1 && (isspace(c) || c == '{' || c == '#'))
 				break;
 			else add_char(c);
 		}
@@ -108,6 +108,11 @@ static void run_script(const char *data, int length) {
 		while (1) {
 			while (pos < length && isspace(data[pos])) pos++;
 			if (pos >= length) break;
+
+			if (data[pos] == '#') {
+				while (pos < length && data[pos] != '\n') pos++;
+				continue;
+			}
 
 			if (data[pos] == '{') {
 				pos++;

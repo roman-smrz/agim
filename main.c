@@ -79,6 +79,9 @@ static const char **parse_params(const char *data, int *pos, int length) {
 			return next_char();
 		}
 
+		if (c == '\\' && (!quot || quot == '"') && (*pos) < length-1)
+			return data[++(*pos)];
+
 		if (quot) return c;
 
 		if (c == '\n' || c == '{' || c == '#')

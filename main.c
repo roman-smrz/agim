@@ -145,7 +145,12 @@ int main(int argc, char **argv)
 	struct stat st;
 	const char *conf_data;
 
-	if ((fd = open("conf", O_RDONLY)) == -1) {
+	if (argc < 2) {
+		fprintf(stderr, "Script name not given\n");
+		exit(1);
+	}
+
+	if ((fd = open(argv[1], O_RDONLY)) == -1) {
 		perror("Reading configuration file");
 		exit(1);
 	}
@@ -162,8 +167,8 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	main_argc = argc;
-	main_argv = argv;
+	main_argc = argc-2;
+	main_argv = argv+2;
 
 	run_script(conf_data, st.st_size);
 	return 0;

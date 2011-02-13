@@ -11,12 +11,12 @@
  */
 bool send(int argc, char **argv) {
 	char **exec_argv =
-		malloc((argc+main_argc-1) * sizeof(*exec_argv));
+		malloc((argc+main_argc) * sizeof(*exec_argv));
 
 	int i = 0;
 	for (int j = 1; j < argc; j++, i++)
 		exec_argv[i] = argv[j];
-	for (int j = 1; j < main_argc; j++, i++)
+	for (int j = 0; j < main_argc; j++, i++)
 		exec_argv[i] = main_argv[j];
 	exec_argv[i] = NULL;
 

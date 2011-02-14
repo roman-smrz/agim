@@ -34,7 +34,7 @@ static void parse_param(char *param, sa_family_t *family,
 
 	int error = getaddrinfo(addr_str, NULL, NULL, &addr_info);
 	if (error != 0) {
-		fprintf(stderr, "net: getaddrinfo: %s\n", gai_strerror(error));
+		fprintf(stderr, "net: %s: %s\n", addr_str, gai_strerror(error));
 		exit(EXIT_FAILURE);
 	}
 

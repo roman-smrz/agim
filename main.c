@@ -14,12 +14,16 @@
 #include "main.h"
 
 
+void serve_children();
+
 bool send (int, const char **);
+bool copy (int, const char **);
 bool net (int, const char **);
 bool essid (int, const char **);
 
 struct command commands[] = {
 	{ "send", send },
+	{ "copy", copy },
 	{ "net", net },
 	{ "essid", essid },
 	{ NULL, NULL }
@@ -247,5 +251,6 @@ int main(int argc, char **argv)
 	main_argv = argv+2;
 
 	run_script(conf_data, st.st_size);
+	serve_children();
 	return 0;
 }

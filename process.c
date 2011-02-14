@@ -104,7 +104,8 @@ void serve_children()
  * Just concatenate the argument lists of this command and main program and
  * call exec.
  */
-bool send(int argc, char **argv) {
+bool agim_send(int argc, char **argv)
+{
 	char **exec_argv =
 		malloc((argc+main_argc) * sizeof(*exec_argv));
 

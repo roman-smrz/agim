@@ -16,13 +16,13 @@
 
 void serve_children();
 
-bool send (int, const char **);
+bool agim_send (int, const char **);
 bool copy (int, const char **);
 bool net (int, const char **);
 bool essid (int, const char **);
 
 struct command commands[] = {
-	{ "send", send },
+	{ "send", agim_send },
 	{ "copy", copy },
 	{ "net", net },
 	{ "essid", essid },

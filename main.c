@@ -93,6 +93,7 @@ static const char **parse_params(const char *data, int *pos, int length) {
 				break;
 			}
 		}
+		name[i] = 0;
 
 		var_value = getenv(name);
 		if (!var_value) var_value = "";

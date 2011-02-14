@@ -132,7 +132,7 @@ static const char **parse_params(const char *data, int *pos, int length) {
 
 			if (quot) return c;
 
-			if (c == '\n' || c == '{' || c == '#')
+			if (c == '\n' || c == '{' || c == '}' || c == '#')
 				return 0;
 		}
 

@@ -2,7 +2,7 @@ CFLAGS+=-std=gnu99 -W -Wall -g
 LDFLAGS+=-liw
 
 
-sources=main send net wifi
+sources=main process net wifi
 
 agim: $(addsuffix .o,$(sources))
 	@echo LD $@

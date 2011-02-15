@@ -1,0 +1,3 @@
+Compile the program with the 'make' command and copy the agim binary to any
+location in your $PATH. There is currently no support for automatic
+installation.

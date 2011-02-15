@@ -1,0 +1,131 @@
+Agim is a program to select MTA and its configuration for outgoing mail in
+dependence on the network to which is the computer currently connected. Hence,
+it is designed primary for laptops or other mobile computers roaming across
+networks with different e-mail related restrictions and policies.
+
+
+To use agim, set is as MTA to use in your mail user agent and set up its
+configuration file (~/.agimrc) in the following format:
+
+<test-command> {
+	...
+	<command>
+}
+
+...
+
+where the block in the curly braces is executed only when the <test-command>
+returns true, otherwise it is skipped. Inside or after this block may be other
+command or blocks of commands.
+
+
+USAGE
+	agim [-C config-file] [MTA arguments ...]
+
+
+
+SUPPORTED COMMANDS
+
+
+Testing:
+
+net address[/mask]
+
+	Address is IPv4 or IPv6 address or domain name. The command returns
+	true if any of the network interfaces of this computer has this address
+	assigned.
+
+	Optional parameter mask specifies the number of bits of address that
+	are actually compared, effectively testing membership in given IP
+	network. Note that only mask length is supported, mask can not be given
+	in the dotted quad notation even if the address is IPv4.
+
+essid name
+
+	Returns true if any of the wireless interfaces has the ESSID equal to
+	name.
+
+true
+	Returns true.
+
+false
+	Returns false.
+
+any
+	Returns true if any of the commands since last curly-braced block
+	returned true, otherwise false.
+
+all
+	Returns true if all of the commands since last curly-braced block
+	returned true, otherwise false.
+
+
+Delivery:
+
+send program [arguments ...]
+
+	Relays the mail to the MTA program with specified parameters.
+	Additionally, arguments specified to the agim (except -C and its
+	parameter if it is the first command-line argument) are appended to the
+	list of arguments of newly executed program.
+
+	After executing this command, the mail is passed to the external
+	program and no further actions are performed by agim.
+
+
+Other:
+
+copy
+	Makes a copy of the message, for one copy, the agim behaves as if the
+	copy returned true, for the other as if it returned false. In effect,
+	the mail is delivered once by the rules in following sub-block and once
+	for the rules after it.
+
+
+
+ENVIRONMENT VARIABLES
+
+	Expansion of environmental variables is supported with the syntax of
+	$VARNAME or ${VARNAME} anywhere where the command names or their
+	arguments are given.
+
+
+
+QUOTING AND ESCAPING
+	
+	Shell-like syntax is supported for escaping (using backslash) or
+	quoting (using single or double quotes) of white space or special
+	characters ({, }, $, #, \, ', "). Single quotes suppresses variable
+	expansion along with special meaning of any character till matching
+	quote.
+	
+
+
+COMMENTS
+
+	Unescaped hash sign (#) with all characters until the first newline are
+	considered comment and not evaluated.
+
+
+
+EXAMPLE CONFIGURATION FILE
+
+	# backup all outgoing mail
+	copy {
+		send "$HOME/make-backup.sh"
+	}
+
+	# use home SMTP server at home
+	essid home-network {
+		send sendmail -C"$HOME/.sendmail/home"
+	}
+
+	# use company SMTP server at work
+	net 1.2.3.0/24
+	net 1.2.4.0/24
+	any {
+		send sendmai -C"$HOME/.sendmail/work"
+	}
+
+	# default configuration
+	send sendmail

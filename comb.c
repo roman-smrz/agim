@@ -1,3 +1,7 @@
+/*
+ * Some simple logical combinators.
+ */
+
 #include "main.h"
 
 

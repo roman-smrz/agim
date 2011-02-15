@@ -1,7 +1,13 @@
+/*
+ * Handling of wireless network, implemented the essid command.
+ */
+
 #include <stdbool.h>
 #include <iwlib.h>
 
 
+/* Accepts one parameter and check whether there is a wireless interface having
+ * corresponding ESSID */
 bool essid(int argc, char **argv)
 {
 	if (argc != 2) {

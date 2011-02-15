@@ -1,3 +1,12 @@
+/*
+ * Here is implemented the core of the interpreter (configuration file is used
+ * basically as a script) – parsing file into commands and arguments and
+ * running them. The main work is done in function parse_params and its
+ * subroutines. Results from there are used in run_script to parse the whole
+ * configuration file (script) and execute it.
+ */
+
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +25,8 @@
 
 void serve_children();
 
+
+/* List of available commands */
 
 bool agim_send (int, char **);
 bool copy (int, char **);
@@ -44,6 +55,9 @@ struct command commands[] = {
 
 
 
+/* Actual parsing of parameters. Main work is done in subroutines defined in
+ * the body of this function, whose results are put together at the end in a
+ * simple loop */
 static char **parse_params(const char *data, int *pos, int length)
 {
 	static char **list = NULL;
@@ -54,6 +68,9 @@ static char **parse_params(const char *data, int *pos, int length)
 
 	list_i = 0; buf_i = 0;
 
+	/* Adds a parameter to the current buffer (enlarging it if necessary).
+	 * If the buffer is moved as a result of realloc, updates pointers in
+	 * list of parsed parameters */
 	inline void add_char(char c)
 	{
 		if (buf_i >= buf_len) {
@@ -67,6 +84,8 @@ static char **parse_params(const char *data, int *pos, int length)
 		buf[buf_i++] = c;
 	}
 
+	/* Adds item to the list of parsed parameters. Would be the current end
+	 * of buffer or NULL to mark the end */
 	inline void add_param(char *param)
 	{
 		if (list_i >= list_len) {
@@ -76,12 +95,13 @@ static char **parse_params(const char *data, int *pos, int length)
 		list[list_i++] = param;
 	}
 
-	int quot = 0;
-	bool last_space = false;
-	(*pos)--;
-
+	/* Parses the name of variable which is to be expanded and the name of
+	 * which starts after the $ sign at the current position. Takes care of
+	 * possible { and } delimiters, if those are not present, name is taken
+	 * to be the longest sequence of alphanumeric or underscore characters.
+	 * The value of variable is placed in the var_value. Currently, only
+	 * variable names of up to 255 characters are supported. */
 	const char *var_value = "";
-
 	void read_var()
 	{
 		char name[256];
@@ -97,6 +117,9 @@ static char **parse_params(const char *data, int *pos, int length)
 				if (isalnum(c) || c == '_')
 					type = ' ';
 			}
+
+			// Nothing that could be a variable name was found, so
+			// just return the $ itself:
 			if (!type) {
 				var_value = "$";
 				return;
@@ -116,13 +139,14 @@ static char **parse_params(const char *data, int *pos, int length)
 		if (!var_value) var_value = "";
 	}
 
-	/*
-	 * This function returns the next character to be included in
+	int quot = 0;
+	bool last_space = false;
+
+	/* This function returns the next character to be included in
 	 * parameters, it interprets special characters, for each sequence of
 	 * non-escaped white-space characters returns exactly one -2 and
 	 * returns -1 when processing of parameters for current command should
-	 * stop.
-	 */
+	 * stop. */
 	int next_char()
 	{
 		char c;
@@ -168,6 +192,10 @@ static char **parse_params(const char *data, int *pos, int length)
 		return c;
 	}
 
+	/* next_char() advances the position prior to reading character, so we
+	 * have to step a one back first: */
+	(*pos)--;
+
 	char c = ' ';
 	while (isspace(c)) c = next_char();
 
@@ -183,6 +211,9 @@ static char **parse_params(const char *data, int *pos, int length)
 }
 
 
+/* History of results since last beginning or end of a command block; used by
+ * some commands like 'any' and 'all'. */
+
 bool *results = NULL;
 int results_count = 0, results_size = 0;
 
@@ -196,6 +227,7 @@ static bool add_result(bool result)
 }
 
 
+/* Runs command given by the parameters, first parameter is the command name. */
 static bool run_cmd(char **params)
 {
 	int count = 0;
@@ -213,6 +245,9 @@ static bool run_cmd(char **params)
 }
 
 
+/* Runs the script, uses parse_params to parse parameters, divides the program
+ * into block and decides which parts to execute, depending on results of
+ * individual commands */
 static void run_script(const char *data, int length)
 {
 	int pos = 0;
@@ -251,6 +286,7 @@ static void run_script(const char *data, int length)
 }
 
 
+/* The rest of command-line arguments; to be used in the send command */
 
 int main_argc;
 char **main_argv;

@@ -1,3 +1,8 @@
+/*
+ * Handling of general network, implemented the net command
+ */
+
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,10 +17,8 @@
 inline static int max(int x, int y) { return x > y ? x : y; }
 
 
-/*
- * Parses parameter into protocol family, address length and arrays of bytes of
- * address and mask.
- */
+/* Parses parameter into protocol family, address length and arrays of bytes of
+ * address and mask. */
 static void parse_param(char *param, sa_family_t *family,
 		size_t *addr_len, unsigned char **addr, unsigned char **mask)
 {
@@ -90,6 +93,8 @@ bool net(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
+	/* Returns true if the addresses from addr and cur_addr matches.
+	 * Compares only the bits where mask is set */
 	bool match_address() {
 		for (size_t i = 0; i < addr_len; i++) {
 			if ((addr[i] & mask[i]) != (cur_addr[i] & mask[i]))
@@ -98,6 +103,8 @@ bool net(int argc, char **argv)
 		return true;
 	}
 
+	/* Walk through all the interfaces returned by getifaddrs and check if
+	 * it matches address from parameter: */
 	for (struct ifaddrs *ifa = ifaddr; ifa; ifa = ifa->ifa_next) {
 		if (ifa->ifa_addr->sa_family != family)
 			continue;

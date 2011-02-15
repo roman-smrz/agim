@@ -1,3 +1,11 @@
+/*
+ * Here is implemented the work with processes, namely the send and copy
+ * commands along with associated routines. That includes ensuring that the
+ * message from standard input is properly passed to each of the children,
+ * should there be any.
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -15,11 +23,9 @@ static struct {
 static int chld_len = 0, chld_i = 0;
 
 
-/*
- * Forks a child process and creates a pipe from parent (saved it the children
+/* Forks a child process and creates a pipe from parent (saved it the children
  * structure) to the child's standard input. Takes care of freeing information
- * about children in the newly created process.
- */
+ * about children in the newly created process. */
 static pid_t add_child()
 {
 	int pipefd[2];
@@ -59,12 +65,10 @@ static pid_t add_child()
 }
 
 
-/*
- * Copy standard input of calling process to standard input of all the child
+/* Copy standard input of calling process to standard input of all the child
  * processes using prepared pipes. Wait for their termination and terminate
  * this process with the first non-zero status of a child process or with 0 if
- * no error status is encountered.
- */
+ * no error status is encountered. */
 void serve_children()
 {
 	char buf[4096];
@@ -100,10 +104,8 @@ void serve_children()
 }
 
 
-/*
- * Just concatenate the argument lists of this command and main program and
- * call exec.
- */
+/* Just concatenate the argument lists of this command and main program and
+ * call exec. */
 bool agim_send(int argc, char **argv)
 {
 	char **exec_argv =
@@ -127,10 +129,8 @@ bool agim_send(int argc, char **argv)
 }
 
 
-/*
- * Fork the process and take care that both parent and child get copy of the
- * standard input. Returns true for child, false for parent.
- */
+/* Fork the process and ensures that both parent and child get copy of the
+ * standard input. Returns true for child, false for parent. */
 bool copy(int argc, char **argv)
 {
 	argv = argv;

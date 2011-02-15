@@ -14,7 +14,7 @@ bool essid(int argc, char **argv)
 	int skfd = iw_sockets_open();
 
 	int check_iface(int skfd, char *ifname, char *args[], int count) {
-		count = count;
+		(void) count;
 		wireless_config info;
 
 		iw_get_basic_config(skfd, ifname, &info);

@@ -7,7 +7,7 @@
 
 struct command {
 	char *name;
-	bool (*run) (int, const char **);
+	bool (*run) (int, char **);
 };
 
 

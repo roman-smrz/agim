@@ -16,15 +16,17 @@
 
 void serve_children();
 
-bool agim_send (int, const char **);
-bool copy (int, const char **);
-bool net (int, const char **);
-bool essid (int, const char **);
+
+bool agim_send (int, char **);
+bool copy (int, char **);
+bool net (int, char **);
+bool essid (int, char **);
 
 bool agim_true(int, char **);
 bool agim_false(int, char **);
 bool any(int, char **);
 bool all(int, char **);
+
 
 struct command commands[] = {
 	{ "send", agim_send },
@@ -42,8 +44,9 @@ struct command commands[] = {
 
 
 
-static const char **parse_params(const char *data, int *pos, int length) {
-	static const char **list = NULL;
+static char **parse_params(const char *data, int *pos, int length)
+{
+	static char **list = NULL;
 	static int list_len = 0, list_i = 0;
 
 	static char *buf = NULL;
@@ -51,7 +54,8 @@ static const char **parse_params(const char *data, int *pos, int length) {
 
 	list_i = 0; buf_i = 0;
 
-	inline void add_char(char c) {
+	inline void add_char(char c)
+	{
 		if (buf_i >= buf_len) {
 			char *old_buf = buf;
 			buf_len = buf_len * 2 + 1;
@@ -63,7 +67,8 @@ static const char **parse_params(const char *data, int *pos, int length) {
 		buf[buf_i++] = c;
 	}
 
-	inline void add_param(char *param) {
+	inline void add_param(char *param)
+	{
 		if (list_i >= list_len) {
 			list_len = list_len * 2 + 1;
 			list = realloc(list, sizeof(*list)*list_len);
@@ -77,7 +82,8 @@ static const char **parse_params(const char *data, int *pos, int length) {
 
 	const char *var_value = "";
 
-	void read_var() {
+	void read_var()
+	{
 		char name[256];
 		char type = 0;
 		int i = 0;
@@ -117,7 +123,8 @@ static const char **parse_params(const char *data, int *pos, int length) {
 	 * returns -1 when processing of parameters for current command should
 	 * stop.
 	 */
-	int next_char() {
+	int next_char()
+	{
 		char c;
 		if (*var_value) {
 			c = *(var_value++);
@@ -189,11 +196,11 @@ static bool add_result(bool result)
 }
 
 
-static bool run_cmd(const char **params) {
+static bool run_cmd(char **params)
+{
 	int count = 0;
 	while (params[count]) count++;
 
-	//fprintf(stderr, "Processing command: %s\n", params[0]);
 	for (struct command *cmd = commands; cmd->name; cmd++) {
 		if (strcmp(params[0], cmd->name) != 0)
 			continue;
@@ -206,7 +213,8 @@ static bool run_cmd(const char **params) {
 }
 
 
-static void run_script(const char *data, int length) {
+static void run_script(const char *data, int length)
+{
 	int pos = 0;
 
 	void run_script_(bool run) {
@@ -233,7 +241,7 @@ static void run_script(const char *data, int length) {
 				break;
 			}
 
-			const char **params = parse_params(data, &pos, length);
+			char **params = parse_params(data, &pos, length);
 			if (!params) return;
 
 			if (run) run_subcmds = run_cmd(params);

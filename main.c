@@ -251,15 +251,44 @@ int main(int argc, char **argv)
 {
 	int fd;
 	struct stat st;
-	const char *conf_data;
+	char *conf_file, *conf_data;
 
-	if (argc < 2) {
-		fprintf(stderr, "Script name not given\n");
-		exit(1);
+	if (argc > 1 && !strncmp(argv[1], "-C", 2)) {
+		if (strlen(argv[1]) == 2) {
+			if (argc < 3) {
+				fprintf(stderr, "Parameter -C requires name of "
+					"configuration file as an argument\n"
+					"usage: agim [-C config-file] [MTA arguments ...]\n"
+				       );
+				exit(1);
+			}
+			conf_file = argv[2];
+			main_argc = argc-3;
+			main_argv = argv+3;
+		} else {
+			conf_file = argv[1]+2;
+			main_argc = argc-2;
+			main_argv = argv+2;
+		}
+	} else {
+		char *home = getenv("HOME");
+		if (!home) {
+			fprintf(stderr, "Environment variable HOME not set\n");
+			exit(1);
+		}
+
+		conf_file = malloc(strlen(home) + 9);
+		strcpy(conf_file, home);
+		strcat(conf_file, "/.agimrc");
+
+		main_argc = argc-1;
+		main_argv = argv+1;
 	}
 
-	if ((fd = open(argv[1], O_RDONLY)) == -1) {
-		perror("Reading configuration file");
+	if ((fd = open(conf_file, O_RDONLY)) == -1) {
+		char error[128];
+		snprintf(error, sizeof(error), "Reading config file %s", conf_file);
+		perror(error);
 		exit(1);
 	}
 
@@ -274,9 +303,6 @@ int main(int argc, char **argv)
 		perror("Mapping config file into memory");
 		exit(1);
 	}
-
-	main_argc = argc-2;
-	main_argv = argv+2;
 
 	run_script(conf_data, st.st_size);
 	serve_children();

@@ -1,3 +1,9 @@
+/* Copyright (c) Roman Smrž 2011 <roman.smrz@seznam.cz>
+ *
+ * This file is part of agim, which is distributed under the term of GNU
+ * General Public License version 3, see COPYING for details.
+ */
+
 /*
  * Here is implemented the work with processes, namely the send and copy
  * commands along with associated routines. That includes ensuring that the

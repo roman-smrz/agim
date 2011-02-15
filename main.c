@@ -1,3 +1,9 @@
+/* Copyright (c) Roman Smrž 2011 <roman.smrz@seznam.cz>
+ *
+ * This file is part of agim, which is distributed under the term of GNU
+ * General Public License version 3, see COPYING for details.
+ */
+
 /*
  * Here is implemented the core of the interpreter (configuration file is used
  * basically as a script) – parsing file into commands and arguments and

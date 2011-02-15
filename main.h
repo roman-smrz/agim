@@ -14,5 +14,8 @@ struct command {
 extern int main_argc;
 extern char **main_argv;
 
+extern bool *results;
+extern int results_count;
+
 
 #endif

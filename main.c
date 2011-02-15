@@ -21,11 +21,22 @@ bool copy (int, const char **);
 bool net (int, const char **);
 bool essid (int, const char **);
 
+bool agim_true(int, char **);
+bool agim_false(int, char **);
+bool any(int, char **);
+bool all(int, char **);
+
 struct command commands[] = {
 	{ "send", agim_send },
 	{ "copy", copy },
 	{ "net", net },
 	{ "essid", essid },
+
+	{ "true", agim_true },
+	{ "false", agim_false },
+	{ "any", any },
+	{ "all", all },
+
 	{ NULL, NULL }
 };
 
@@ -163,6 +174,19 @@ static const char **parse_params(const char *data, int *pos, int length) {
 }
 
 
+bool *results = NULL;
+int results_count = 0, results_size = 0;
+
+static bool add_result(bool result)
+{
+	if (results_count >= results_size) {
+		results_size = results_size * 2 + 1;
+		results = realloc(results, results_size * sizeof(*results));
+	}
+	return results[results_count++] = result;
+}
+
+
 static bool run_cmd(const char **params) {
 	int count = 0;
 	while (params[count]) count++;
@@ -172,13 +196,12 @@ static bool run_cmd(const char **params) {
 		if (strcmp(params[0], cmd->name) != 0)
 			continue;
 
-		return cmd->run(count, params);
+		return add_result(cmd->run(count, params));
 	}
 
 	fprintf(stderr, "Unknown command: %s\n", params[0]);
 	exit(EXIT_FAILURE);
 }
-
 
 
 static void run_script(const char *data, int length) {
@@ -197,12 +220,14 @@ static void run_script(const char *data, int length) {
 
 			if (data[pos] == '{') {
 				pos++;
+				results_count = 0;
 				run_script_(run_subcmds);
 				continue;
 			}
 
 			if (data[pos] == '}') {
 				pos++;
+				results_count = 0;
 				break;
 			}
 

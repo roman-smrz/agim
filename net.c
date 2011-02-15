@@ -18,6 +18,7 @@
 #include <sys/socket.h>
 #include <ifaddrs.h>
 #include <netdb.h>
+#include <netinet/in.h>
 
 
 inline static int max(int x, int y) { return x > y ? x : y; }

@@ -8,7 +8,11 @@
  * Handling of wireless network, implemented the essid command.
  */
 
+
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
+
 #include <iwlib.h>
 
 

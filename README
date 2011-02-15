@@ -45,6 +45,8 @@ essid name
 	Returns true if any of the wireless interfaces has the ESSID equal to
 	name.
 
+	(Currently available only on Linux.)
+
 true
 	Returns true.
 

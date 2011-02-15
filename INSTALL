@@ -1,3 +1,15 @@
-Compile the program with the 'make' command and copy the agim binary to any
-location in your $PATH. There is currently no support for automatic
-installation.
+Compile the program with the 'make' or 'gmake' (on BSD) command and copy the
+agim binary to any location in your $PATH. There is currently no support for
+automatic installation.
+
+
+Dependencies:
+
+wireless-tools (http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html)
+	(Only on Linux)
+
+
+Compile-time dependencies:
+
+GNU make
+GCC

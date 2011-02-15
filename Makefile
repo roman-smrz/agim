@@ -1,9 +1,16 @@
 CFLAGS+=-std=gnu99 -W -Wall -g
-LDFLAGS+=-liw
 
 
-sources = main process net wifi comb
+sources = main process net comb
 files = $(addsuffix .c,$(sources)) main.h Makefile README INSTALL COPYING
+
+
+OSTYPE := $(shell uname -s)
+
+ifeq ($(OSTYPE), Linux)
+	sources += wifi
+	LDFLAGS += -liw
+endif
 
 
 agim: $(addsuffix .o,$(sources))

@@ -37,7 +37,11 @@ void serve_children();
 bool agim_send (int, char **);
 bool copy (int, char **);
 bool net (int, char **);
+
+// libiw from wireless-tools used for essid command is available only on Linux
+#ifdef __linux__
 bool essid (int, char **);
+#endif
 
 bool agim_true(int, char **);
 bool agim_false(int, char **);
@@ -49,7 +53,9 @@ struct command commands[] = {
 	{ "send", agim_send },
 	{ "copy", copy },
 	{ "net", net },
+#ifdef __linux__
 	{ "essid", essid },
+#endif
 
 	{ "true", agim_true },
 	{ "false", agim_false },

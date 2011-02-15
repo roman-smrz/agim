@@ -113,15 +113,17 @@ static const char **parse_params(const char *data, int *pos, int length) {
 	/*
 	 * This function returns the next character to be included in
 	 * parameters, it interprets special characters, for each sequence of
-	 * white-space characters returns exactly one space and returns 0 when
-	 * processing of parameters for current command should stop.
+	 * non-escaped white-space characters returns exactly one -2 and
+	 * returns -1 when processing of parameters for current command should
+	 * stop.
 	 */
-	char next_char() {
+	int next_char() {
 		char c;
 		if (*var_value) {
 			c = *(var_value++);
+			if (quot) return c;
 		} else {
-			if (++(*pos) >= length) return 0;
+			if (++(*pos) >= length) return -1;
 
 			c = data[*pos];
 			last_space = last_space && isspace(c);
@@ -145,14 +147,14 @@ static const char **parse_params(const char *data, int *pos, int length) {
 			if (quot) return c;
 
 			if (c == '\n' || c == '{' || c == '}' || c == '#')
-				return 0;
+				return -1;
 		}
 
 		if (isspace(c)) {
 			if (last_space) return next_char();
 			else {
 				last_space = true;
-				return ' ';
+				return -2;
 			}
 		}
 
@@ -162,12 +164,12 @@ static const char **parse_params(const char *data, int *pos, int length) {
 	char c = ' ';
 	while (isspace(c)) c = next_char();
 
-	while (c) {
+	while (c != -1) {
 		add_param(buf+buf_i);
-		for (; c && c != ' '; c = next_char())
+		for (; c >= 0; c = next_char())
 			add_char(c);
 		add_char(0);
-		if (c) c = next_char();
+		if (c != -1) c = next_char();
 	}
 	add_param(NULL);
 	return list;

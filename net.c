@@ -113,7 +113,7 @@ bool net(int argc, char **argv)
 	/* Walk through all the interfaces returned by getifaddrs and check if
 	 * it matches address from parameter: */
 	for (struct ifaddrs *ifa = ifaddr; ifa; ifa = ifa->ifa_next) {
-		if (ifa->ifa_addr->sa_family != family)
+		if (!ifa->ifa_addr || ifa->ifa_addr->sa_family != family)
 			continue;
 
 		if (family == AF_INET)
